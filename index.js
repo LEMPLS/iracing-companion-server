@@ -9,6 +9,8 @@ const messageTypes = {
 
 // TODO : Replace with irsdk
 wss.on('connection', ws => {
+  console.log('Dashboard connected');
+
   let timer;
   let timerCross;
 
@@ -43,7 +45,10 @@ wss.on('connection', ws => {
   sendCrossLine();
 
   ws.on('close', () => {
+    console.log('Dashboard disconnected');
     clearTimeout(timer);
     clearTimeout(timerCross);
   });
 });
+
+console.log('Server is running, waiting for connections...');
