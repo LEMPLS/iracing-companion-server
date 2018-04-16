@@ -2,17 +2,18 @@
   "name": "lempls-iracing-companion-server",
   "version": "1.0.0",
   "description": "LEMPLS iRacing Companion Server",
+  "private": true,
   "main": "app.js",
   "contributors": [
     "Martin Kapal",
     "Tomáš Korený"
   ],
   "license": "MIT",
-  "private": true,
   "scripts": {
     "dev": "backpack dev",
     "start": "node ./build/main.js",
-    "build": "backpack build"
+    "build": "backpack build",
+    "dist": "pkg -t node8-win -o ./dist/LiRC-Server.exe index.js"
   },
   "dependencies": {
     "backpack-core": "^0.7.0",
@@ -20,6 +21,7 @@
     "ws": "^5.1.1"
   },
   "devDependencies": {
+    "pkg": "^4.3.1",
     "prettier": "^1.11.1"
   }
 }
