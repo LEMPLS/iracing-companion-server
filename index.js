@@ -44,6 +44,7 @@ wss.on('connection', ws => {
     RaceLapsRemaining: 0,
     SessionNum: null,
     GapToAhead: null,
+    GapToBehind: null,
   };
 
   let Session = {
@@ -74,7 +75,6 @@ wss.on('connection', ws => {
   const telemetryCallback = ({ values }) => {
     // Crossed the line
     if (Telemetry.LapCompleted < values.LapCompleted) {
-
       // Wait a bit for the gap to update
       setTimeout(() => {
         const PlayerCarIdx = values.PlayerCarIdx;
@@ -83,18 +83,20 @@ wss.on('connection', ws => {
           PlayerCarIdx === 0
             ? null
             : values.CarIdxF2Time[PlayerCarIdx] -
-            values.CarIdxF2Time[PlayerCarIdx - 1];
+              values.CarIdxF2Time[PlayerCarIdx - 1];
 
-        const GainedToAhead = Telemetry.GapToAhead ? GapToAhead - Telemetry.GapToAhead : 0;
+        const GainedToAhead = Telemetry.GapToAhead
+          ? GapToAhead - Telemetry.GapToAhead
+          : 0;
 
         ws.send(
           JSON.stringify({
             type: messageTypes.MESSAGE_TYPE_CROSS_LINE,
             payload:
-            {
-              GapToAhead,
-              GainedToAhead,
-            } || {},
+              {
+                GapToAhead,
+                GainedToAhead,
+              } || {},
           }),
         );
 
