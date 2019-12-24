@@ -156,7 +156,7 @@ wss.on('connection', ws => {
   });
 });
 
-console.log(`Server started at port ${port}`);
+console.log(`Server started at ws://localhost:${port}`);
 
 process.on('uncaughtException', err => {
   switch (err.code) {
