@@ -19,7 +19,7 @@ const telemetryConst = {
 
 const irsdk = require('node-irsdk');
 irsdk.init({
-  telemetryUpdateInterval: 50,
+  telemetryUpdateInterval: 10,
   sessionInfoUpdateInterval: 1000,
 });
 
@@ -33,8 +33,8 @@ iracing.on('Disconnected', () => {
   console.log('iRacing shut down'.yellow);
 });
 
-wss.on('connection', ws => {
-  console.log('Dashboard connected'.green);
+wss.on('connection', (ws, req) => {
+  console.log(`Dashboard connected (${req.connection.remoteAddress})`.green);
   let connected = true;
 
   const Telemetry = {
@@ -73,37 +73,6 @@ wss.on('connection', ws => {
   };
 
   const telemetryCallback = ({ values }) => {
-    // Crossed the line
-    if (Telemetry.LapCompleted < values.LapCompleted) {
-      // Wait a bit for the gap to update
-      setTimeout(() => {
-        const PlayerCarIdx = values.PlayerCarIdx;
-
-        const GapToAhead =
-          PlayerCarIdx === 0
-            ? null
-            : values.CarIdxF2Time[PlayerCarIdx] -
-              values.CarIdxF2Time[PlayerCarIdx - 1];
-
-        const GainedToAhead = Telemetry.GapToAhead
-          ? GapToAhead - Telemetry.GapToAhead
-          : 0;
-
-        ws.send(
-          JSON.stringify({
-            type: messageTypes.MESSAGE_TYPE_CROSS_LINE,
-            payload:
-              {
-                GapToAhead,
-                GainedToAhead,
-              } || {},
-          }),
-        );
-
-        Telemetry.GapToAhead = GapToAhead;
-      }, 2000);
-    }
-
     Telemetry.SessionNum = values.SessionNum;
     Telemetry.LapCompleted = values.LapCompleted;
     Telemetry.RaceLapsRemaining = Session.SessionLaps
@@ -149,7 +118,7 @@ wss.on('connection', ws => {
   }
 
   ws.on('close', () => {
-    console.log('Dashboard disconnected'.red);
+    console.log(`Dashboard disconnected`.yellow);
     iracing.removeListener('Telemetry', telemetryCallback);
     iracing.removeListener('SessionInfo', sessionInfoCallback);
     connected = false;
