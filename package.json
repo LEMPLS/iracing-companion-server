@@ -13,17 +13,17 @@
     "dev": "backpack dev",
     "start": "node ./build/main.js",
     "build": "backpack build",
-    "dist": "pkg -t node8-win -o ./dist/LiRC-Server.exe index.js"
+    "dist": "pkg -t node12-win -o ./dist/LiRC-Server.exe index.js"
   },
   "dependencies": {
-    "backpack-core": "^0.7.0",
-    "colors": "^1.2.1",
-    "dotenv": "^5.0.1",
-    "node-irsdk": "^2.1.3",
-    "ws": "^5.1.1"
+    "backpack-core": "^0.8.4",
+    "colors": "^1.4.0",
+    "dotenv": "^8.2.0",
+    "node-irsdk": "^2.1.6",
+    "ws": "^7.2.1"
   },
   "devDependencies": {
-    "pkg": "^4.3.1",
-    "prettier": "^1.11.1"
+    "pkg": "^4.4.2",
+    "prettier": "^1.19.1"
   }
 }
