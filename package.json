@@ -12,6 +12,7 @@
   "scripts": {
     "dev": "backpack dev",
     "start": "node ./build/main.js",
+    "prettier": "prettier --write ./src/*.js",
     "build": "backpack build",
     "dist": "pkg -t node12-win -o ./dist/LiRC-Server.exe src/index.js"
   },

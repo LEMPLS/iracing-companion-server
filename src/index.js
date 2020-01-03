@@ -17,9 +17,19 @@ const telemetryConst = {
   PITSTOP_END: 2,
 };
 
+const defaultTelemetryValues = {
+  PitStop: false,
+  LastPitLap: 0,
+  LapCompleted: 0,
+  RaceLapsRemaining: 0,
+  SessionNum: null,
+  GapToAhead: null,
+  GapToBehind: null,
+};
+
 const irsdk = require('node-irsdk');
 irsdk.init({
-  telemetryUpdateInterval: 10,
+  telemetryUpdateInterval: 50,
   sessionInfoUpdateInterval: 1000,
 });
 
@@ -35,19 +45,10 @@ iracing.on('Disconnected', () => {
 
 wss.on('connection', (ws, req) => {
   console.log(`Dashboard connected (${req.connection.remoteAddress})`.green);
-  let connected = true;
 
-  const Telemetry = {
-    PitStop: false,
-    LastPitLap: 0,
-    LapCompleted: 0,
-    RaceLapsRemaining: 0,
-    SessionNum: null,
-    GapToAhead: null,
-    GapToBehind: null,
-  };
+  const Telemetry = defaultTelemetryValues;
 
-  let Session = {
+  const Session = {
     SessionLaps: null,
   };
 
@@ -94,9 +95,15 @@ wss.on('connection', (ws, req) => {
       Telemetry.PitStop = false;
     }
 
-    const LapCompletedSincePit = Math.abs(
-      Telemetry.LapCompleted - Telemetry.LastPitLap,
-    );
+    const playerCarIdx = values.PlayerCarIdx;
+    const playerCarPosition = values.CarIdxPosition[playerCarIdx];
+
+    const carAheadIdx = values.CarIdxPosition.indexOf(playerCarPosition - 1);
+
+    const playerCarF2Time = values.CarIdxF2Time[values.PlayerCarIdx];
+    const carAheadF2Time = values.CarIdxF2Time[carAheadIdx];
+
+    Telemetry.GapToAhead = playerCarF2Time - carAheadF2Time;
 
     // Send data to dashboards
     ws.send(
@@ -104,9 +111,7 @@ wss.on('connection', (ws, req) => {
         type: messageTypes.MESSAGE_TYPE_TELEMETRY,
         payload:
           {
-            ...values,
-            LapCompletedSincePit,
-            RaceLapsRemaining: Telemetry.RaceLapsRemaining,
+            ...Telemetry,
           } || {},
       }),
     );
@@ -121,7 +126,6 @@ wss.on('connection', (ws, req) => {
     console.log(`Dashboard disconnected`.yellow);
     iracing.removeListener('Telemetry', telemetryCallback);
     iracing.removeListener('SessionInfo', sessionInfoCallback);
-    connected = false;
   });
 });
 
